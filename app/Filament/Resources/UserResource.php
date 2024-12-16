@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\Specialization;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
@@ -28,11 +30,28 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required(),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
+                Forms\Components\DateTimePicker::make('email_verified_at')
+                ->hidden(),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required(),
-                Forms\Components\TextInput::make('role'),
+                Forms\Components\Select::make('role')
+                    ->label('role')
+                    ->options([
+                        'admin' => 'admin',
+                        'patient' => 'patient',
+                        'doctor'=>'doctor'
+                    ])
+                    ->live()
+                    ->reactive(),
+                    Forms\Components\Select::make('specialization_id') 
+                    ->label('Specialization')
+                    ->options(fn () => Specialization::pluck('name', 'id'))
+                    ->searchable()
+                    ->required()
+                    ->visible(fn (callable $get) => $get('role') === 'doctor')
+                    ->default(fn (?Model $record) => $record && $record->roles === 'doctor' ? $record->doctor->specialization_id : null),
+      
                 Forms\Components\TextInput::make('address'),
                 Forms\Components\TextInput::make('phone')
                     ->tel(),
@@ -49,6 +68,7 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email_verified_at')
                     ->dateTime()
+                    ->hidden()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

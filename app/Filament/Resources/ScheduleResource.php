@@ -24,17 +24,23 @@ class ScheduleResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('doctor_id')
+                ->label('Doctor')
                     ->required()
                     ->numeric(),
                 Forms\Components\DatePicker::make('date')
                     ->required(),
-                Forms\Components\TextInput::make('start_time')
+                Forms\Components\TimePicker::make('start_time')
                     ->required(),
-                Forms\Components\TextInput::make('end_time')
+                Forms\Components\TimePicker::make('end_time')
                     ->required(),
                 Forms\Components\TextInput::make('day')
                     ->required(),
-                Forms\Components\TextInput::make('availability')
+                Forms\Components\Select::make('availability')
+                    ->label('Availability')
+                    ->options([
+                        'available' => 'available',
+                        'unavailable' => 'unavailable',
+                    ])
                     ->required(),
             ]);
     }

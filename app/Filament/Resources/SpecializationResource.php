@@ -3,12 +3,19 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SpecializationResource\Pages;
+use App\Filament\Resources\SpecializationResource\Pages\CreateSpecialization;
+use App\Filament\Resources\SpecializationResource\Pages\EditSpecialization;
+use App\Filament\Resources\SpecializationResource\Pages\ListSpecializations;
+use App\Filament\Resources\SpecializationResource\Pages\ViewSpecialization;
 use App\Filament\Resources\SpecializationResource\RelationManagers;
 use App\Models\Specialization;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -49,6 +56,8 @@ class SpecializationResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
