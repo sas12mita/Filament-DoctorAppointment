@@ -4,14 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ScheduleResource\Pages;
 use App\Filament\Resources\ScheduleResource\RelationManagers;
+use App\Models\Doctor;
 use App\Models\Schedule;
+use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
 
 class ScheduleResource extends Resource
 {
@@ -23,15 +31,27 @@ class ScheduleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('doctor_id')
+                Forms\Components\Select::make('doctor_id')
                 ->label('Doctor')
-                    ->required()
-                    ->numeric(),
+                ->options(function ()
+                {
+                    return Doctor::with('user')->get()->pluck('user.name','id');
+                })
+                ->required()
+                ->reactive(),
                 Forms\Components\DatePicker::make('date')
-                    ->required(),
+                ->label('Date')
+                ->reactive()
+                ->afterStateUpdated(function ($state, callable $set) {
+                 
+                    $date = Carbon::parse($state); 
+                    $dayOfWeek = $date->format('l'); 
+                    $set('day', $dayOfWeek);
+                })
+                ->required(),
                 Forms\Components\TimePicker::make('start_time')
                     ->required(),
-                Forms\Components\TimePicker::make('end_time')
+                Forms\Components\TimePicker::make('end_time') 
                     ->required(),
                 Forms\Components\TextInput::make('day')
                     ->required(),
@@ -41,7 +61,7 @@ class ScheduleResource extends Resource
                         'available' => 'available',
                         'unavailable' => 'unavailable',
                     ])
-                    ->required(),
+                
             ]);
     }
 

@@ -5,10 +5,17 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AppointmentResource\Pages;
 use App\Filament\Resources\AppointmentResource\RelationManagers;
 use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\Specialization;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -23,20 +30,40 @@ class AppointmentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('patient_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('doctor_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Select::make('specialization_id')
+                    ->label('Specialization')
+                    ->options(fn() => Specialization::pluck('name', 'id'))
+                    ->searchable()
+                    ->required(),
+
+                    Forms\Components\Select::make('patient_id')
+                    ->label('Patient')
+                    ->options(function () {
+                        return Patient::with('user')
+                            ->get()
+                            ->pluck('user.name', 'id')
+                            ->filter(fn($name) => !is_null($name) && $name !== ''); // Filter out null or empty names
+                    })
+                    ->required(),
+                
+                Forms\Components\Select::make('doctor_id')
+                    ->label('Doctor')
+                    ->options(function () {
+                        return Doctor::with('user')
+                            ->get()
+                            ->pluck('user.name', 'id')
+                            ->filter(fn($name) => !is_null($name) && $name !== ''); // Filter out null or empty names
+                    })
+                    ->required(),
+                
                 Forms\Components\DatePicker::make('appointment_date')
                     ->required(),
-                Forms\Components\TextInput::make('start_time')
+                Forms\Components\TimePicker::make('start_time')
                     ->required(),
-                Forms\Components\TextInput::make('end_time')
+                Forms\Components\TimePicker::make('end_time')
                     ->required(),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
+                // Forms\Components\TextInput::make('status')
+                //     ->required(),
             ]);
     }
 
