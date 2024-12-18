@@ -7,11 +7,9 @@ use App\Filament\Resources\AppointmentResource\RelationManagers;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Schedule;
 use App\Models\Specialization;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -28,43 +26,78 @@ class AppointmentResource extends Resource
 
     public static function form(Form $form): Form
     {
+        
         return $form
-            ->schema([
-                Forms\Components\Select::make('specialization_id')
-                    ->label('Specialization')
-                    ->options(fn() => Specialization::pluck('name', 'id'))
-                    ->searchable()
-                    ->required(),
+    ->schema([
+        Forms\Components\Select::make('specialization_id')
+            ->label('Specialization')
+            ->options(fn() => Specialization::pluck('name', 'id'))
+            ->searchable()
+            ->reactive()
+            ->required()
+            ->afterStateUpdated(function ($state, callable $set) {
+                $set('doctor_id', null); // Reset doctor field
+            }),
 
-                    Forms\Components\Select::make('patient_id')
-                    ->label('Patient')
-                    ->options(function () {
-                        return Patient::with('user')
-                            ->get()
-                            ->pluck('user.name', 'id')
-                            ->filter(fn($name) => !is_null($name) && $name !== ''); // Filter out null or empty names
-                    })
-                    ->required(),
-                
-                Forms\Components\Select::make('doctor_id')
-                    ->label('Doctor')
-                    ->options(function () {
-                        return Doctor::with('user')
-                            ->get()
-                            ->pluck('user.name', 'id')
-                            ->filter(fn($name) => !is_null($name) && $name !== ''); // Filter out null or empty names
-                    })
-                    ->required(),
-                
-                Forms\Components\DatePicker::make('appointment_date')
-                    ->required(),
-                Forms\Components\TimePicker::make('start_time')
-                    ->required(),
-                Forms\Components\TimePicker::make('end_time')
-                    ->required(),
-                // Forms\Components\TextInput::make('status')
-                //     ->required(),
-            ]);
+        Forms\Components\Select::make('doctor_id')
+            ->label('Doctor')
+            ->options(function ($get) {
+                $specializationId = $get('specialization_id');
+                if ($specializationId) {
+                    return Doctor::where('specialization_id', $specializationId)
+                        ->with('user')
+                        ->get()
+                        ->mapWithKeys(function ($doctor) {
+                            return [
+                                $doctor->id => optional($doctor->user)->name ?? 'Unknown Doctor',
+                            ];
+                        });
+                }
+                return [];
+            })
+            ->required()
+            ->searchable()
+            ->reactive()
+            ->afterStateUpdated(function ($state, callable $set) {
+                $set('appointment_date', null); // Reset appointment date
+            }),
+
+            Forms\Components\Select::make('patient_id')
+            ->label('Patient')
+            ->options(function () {
+                return Patient::with('user')
+                    ->get()
+                    ->filter(fn($patient) => optional($patient->user)->name) // Only include patients with valid names
+                    ->mapWithKeys(function ($patient) {
+                        return [
+                            $patient->id => $patient->user->name, // Fetch user name
+                        ];
+                    });
+            })
+            ->required(),
+
+        Forms\Components\Select::make('appointment_date')
+            ->label('Appointment Date')
+            ->required()
+            ->options(function ($get) {
+                $doctorId = $get('doctor_id');
+                if ($doctorId) {
+                    return Schedule::where('doctor_id', $doctorId)
+                        ->pluck('date', 'date'); // Key and value are both date
+                }
+                return [];
+            }),
+
+        Forms\Components\TimePicker::make('start_time')
+            ->required(),
+
+        Forms\Components\TimePicker::make('end_time')
+            ->required(),
+
+        Forms\Components\Hidden::make('status')
+            ->default('pending')
+            ->required(),
+    ]);
     }
 
     public static function table(Table $table): Table
@@ -99,6 +132,7 @@ class AppointmentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
