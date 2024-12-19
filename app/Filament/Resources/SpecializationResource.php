@@ -24,7 +24,9 @@ class SpecializationResource extends Resource
 {
     protected static ?string $model = Specialization::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationGroup='Specialization Management';
+
 
     public static function form(Form $form): Form
     {

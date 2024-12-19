@@ -26,19 +26,26 @@ class CreateAppointment extends CreateRecord
         $schedule = Schedule::where('doctor_id', $doctorId)
             ->where('date', $appointmentDate)
             ->first();
-       
+
+        $providedDate = Carbon::parse($data['date']);
+        if ($providedDate->isBefore(Carbon::today())) {
+            Notification::make()
+                ->title("The appointment date cannot be before today")
+                ->danger()
+                ->send();
+            throw ValidationException::withMessages([]);
+        }
+
         // Ensure the appointment is within the doctor's schedule time
         $scheduleStart = \Carbon\Carbon::parse($schedule->start_time);
         $scheduleEnd = \Carbon\Carbon::parse($schedule->end_time);
 
         if ($startTime < $scheduleStart || $endTime > $scheduleEnd) {
             Notification::make()
-            ->title("The appointment time must be within the doctor\'s available schedule.")
-            ->danger()
-            ->send();
-            throw ValidationException::withMessages([
-                
-            ]);
+                ->title("The appointment time must be within the doctor\'s available schedule.")
+                ->danger()
+                ->send();
+            throw ValidationException::withMessages([]);
         }
         if (Carbon::parse($data['end_time'])->lessThanOrEqualTo(Carbon::parse($data['start_time']))) {
             Notification::make()
@@ -48,29 +55,28 @@ class CreateAppointment extends CreateRecord
             throw ValidationException::withMessages([]);
         }
         $overlap = Appointment::where('doctor_id', $doctorId)
-        ->where('appointment_date', $appointmentDate)
-        ->where(function ($query) use ($startTime, $endTime) {
-            $query->where(function ($query) use ($startTime, $endTime) {
-                // Case 1: Time ranges that don't cross midnight
-                $query->where('start_time', '<=', $endTime)
-                      ->where('end_time', '>=', $startTime);
-            })->orWhere(function ($query) use ($startTime, $endTime) {
-                // Case 2: Existing appointment crosses midnight
-                $query->where('end_time', '<', 'start_time') // Crosses midnight
-                      ->where(function ($query) use ($startTime, $endTime) {
-                          $query->whereBetween($startTime, ['start_time', '23:59:59'])
+            ->where('appointment_date', $appointmentDate)
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->where(function ($query) use ($startTime, $endTime) {
+                    // Case 1: Time ranges that don't cross midnight
+                    $query->where('start_time', '<=', $endTime)
+                        ->where('end_time', '>=', $startTime);
+                })->orWhere(function ($query) use ($startTime, $endTime) {
+                    // Case 2: Existing appointment crosses midnight
+                    $query->where('end_time', '<', 'start_time') // Crosses midnight
+                        ->where(function ($query) use ($startTime, $endTime) {
+                            $query->whereBetween($startTime, ['start_time', '23:59:59'])
                                 ->orWhereBetween($endTime, ['00:00:00', 'end_time']);
-                      });
-            });
-        })
-        ->exists();
+                        });
+                });
+            })
+            ->exists();
         if ($overlap) {
             Notification::make()
-            ->title("The selected time slot overlaps with an existing appointment.")
-            ->danger()
-            ->send();
-            throw ValidationException::withMessages([
-            ]);
+                ->title("The selected time slot overlaps with an existing appointment.")
+                ->danger()
+                ->send();
+            throw ValidationException::withMessages([]);
         }
         return $data;
     }
