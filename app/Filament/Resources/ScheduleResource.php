@@ -20,12 +20,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ScheduleResource extends Resource
 {
     protected static ?string $model = Schedule::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     
     protected static ?string $navigationGroup='Schedule Management';
@@ -39,6 +40,7 @@ class ScheduleResource extends Resource
                 {
                     return Doctor::with('user')->get()->pluck('user.name','id');
                 })
+                ->hidden(fn($get) => Auth::user()->role==='doctor') // Hide for patient role
                 ->required()
                 ->reactive(),
                 Forms\Components\DatePicker::make('date')
@@ -55,6 +57,7 @@ class ScheduleResource extends Resource
                     ->required(),
                 Forms\Components\TimePicker::make('end_time') 
                     ->required(),
+
                 Forms\Components\TextInput::make('day')
                     ->required(),
                 Forms\Components\Select::make('availability')
@@ -103,7 +106,7 @@ class ScheduleResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+        
                 ]),
             ]);
     }

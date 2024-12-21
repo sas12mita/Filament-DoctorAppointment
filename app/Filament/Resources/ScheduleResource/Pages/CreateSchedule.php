@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\ScheduleResource\Pages;
 
 use App\Filament\Resources\ScheduleResource;
+use App\Models\Doctor;
+use App\Models\Patient;
 use App\Models\Schedule;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class CreateSchedule extends CreateRecord
@@ -15,6 +18,12 @@ class CreateSchedule extends CreateRecord
     protected static string $resource = ScheduleResource::class;
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        if (Auth::user()->role=='doctor') {
+            $user_id=Auth::user()->id;
+            $doctor=Doctor::where('user_id',$user_id)->first();
+            $data['doctor_id'] = $doctor->id;
+        }
+    
         $data['start_time'] = Carbon::parse($data['start_time'])->format('H:i');
         $data['end_time'] = Carbon::parse($data['end_time'])->format('H:i');
     

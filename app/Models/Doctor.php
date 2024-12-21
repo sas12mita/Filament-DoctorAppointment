@@ -17,7 +17,7 @@ class Doctor extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function appointments()
+    public function bookappointments()
     {
         return $this->hasMany(Appointment::class);
     }

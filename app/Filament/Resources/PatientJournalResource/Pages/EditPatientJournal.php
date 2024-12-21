@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\AppointmentResource\Pages;
+namespace App\Filament\Resources\PatientJournalResource\Pages;
 
-use App\Filament\Resources\AppointmentResource;
+use App\Filament\Resources\PatientJournalResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditAppointment extends EditRecord
+class EditPatientJournal extends EditRecord
 {
-    protected static string $resource = AppointmentResource::class;
+    protected static string $resource = PatientJournalResource::class;
 
     protected function getHeaderActions(): array
     {

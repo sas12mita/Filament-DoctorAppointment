@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'doctor', 'patient'])->default('patient');
-            $table->string('address')->nullable();
-            $table->string('phone')->nullable();
+        Schema::create('patient_journals', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('appointment_id')->constrained()->cascadeOnDelete();
+            $table->text('report');
+            $table->timestamps();
         });
     }
 
@@ -23,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('patient_journals');
     }
 };

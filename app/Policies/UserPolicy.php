@@ -12,7 +12,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role=="admin"|| $user->role=="patient"||$user->role=="doctor";
+        return $user->role=="admin"||$user->role=="doctor";
     }
 
     /**
