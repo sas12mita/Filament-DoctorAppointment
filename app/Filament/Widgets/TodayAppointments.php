@@ -40,12 +40,12 @@ class TodayAppointments extends BaseWidget
     {
         return [
             Tables\Columns\TextColumn::make('patient.user.name')
-                ->label('Patient Name')
+                ->label('Patient')
                 ->searchable()
                 ->sortable(),
 
             Tables\Columns\TextColumn::make('doctor.user.name')
-                ->label('Doctor Name')
+                ->label('Doctor')
                 ->searchable()
                 ->sortable(),
 
