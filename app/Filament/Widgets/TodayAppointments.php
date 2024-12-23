@@ -26,8 +26,8 @@ class TodayAppointments extends BaseWidget
      */
     protected function getQuery(): Builder
     {
-        
-        $appointment= Appointment::whereHas('schedule', function (Builder $query) {
+
+        $appointment = Appointment::whereHas('schedule', function (Builder $query) {
             $query->whereDate('date', Carbon::today()); // Adjust to match the schedule's date column
         });
         return $appointment;
@@ -55,8 +55,8 @@ class TodayAppointments extends BaseWidget
                 ->extraAttributes(function ($record) {
                     // Dynamically style based on condition
                     return [
-                        'class' => 'bg-green-100', 
-'style' => 'background-color: rgb(110, 242, 62); color: white; padding-top: 5px; padding-bottom:5px; padding-left: 10px;border-radius: 5px;',
+                        'class' => 'bg-green-100',
+                        'style' => 'background-color: rgb(110, 242, 62); color: white; padding-top: 5px; padding-bottom:5px; padding-left: 10px;border-radius: 5px;',
 
                     ];
                 }),

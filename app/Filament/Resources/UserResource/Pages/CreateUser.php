@@ -23,6 +23,7 @@ class CreateUser extends CreateRecord
         'phone' => $data['phone'],
         'address' => $data['address'],
         'role' => $data['role'], 
+        'gender'=>$data['gender']
     ]);
     if ($data['role'] === 'patient') {
         Patient::create([

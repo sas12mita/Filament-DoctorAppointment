@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patient_journals', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('appointment_id')->constrained()->cascadeOnDelete();
-            $table->text('report');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('gender',['female','male','others'])->nullable();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patient_journals');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };

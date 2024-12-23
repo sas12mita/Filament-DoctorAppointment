@@ -21,9 +21,9 @@ class Appointment extends Model
         {
             return $this->belongsTo(Doctor::class, 'doctor_id');
         }
-        public function patientJournal()
+        public function patientreports()
         {
-            return $this->hasOne(PatientJournal::class);
+            return $this->hasMany(PatientReport::class);
         }
         public function schedule()
         {

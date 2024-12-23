@@ -20,7 +20,7 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
-    protected static ?string $navigationGroup='User Management';
+    protected static ?string $navigationGroup = 'User Management';
 
     public static function form(Form $form): Form
     {
@@ -32,27 +32,35 @@ class UserResource extends Resource
                     ->email()
                     ->required(),
                 Forms\Components\DateTimePicker::make('email_verified_at')
-                ->hidden(),
+                    ->hidden(),
                 Forms\Components\TextInput::make('password')
                     ->password()
+                    ->required(),
+                Forms\Components\Select::make('gender')
+                    ->label('gender')
+                    ->options([
+                        'female' => 'female',
+                        'male' => 'male',
+                        'others' => 'others'
+                    ])
                     ->required(),
                 Forms\Components\Select::make('role')
                     ->label('role')
                     ->options([
                         'admin' => 'admin',
                         'patient' => 'patient',
-                        'doctor'=>'doctor'
+                        'doctor' => 'doctor'
                     ])
                     ->live()
                     ->reactive(),
-                    Forms\Components\Select::make('specialization_id') 
+                Forms\Components\Select::make('specialization_id')
                     ->label('Specialization')
-                    ->options(fn () => Specialization::pluck('name', 'id'))
+                    ->options(fn() => Specialization::pluck('name', 'id'))
                     ->searchable()
                     ->required()
-                    ->visible(fn (callable $get) => $get('role') === 'doctor')
-                    ->default(fn (?Model $record) => $record && $record->roles === 'doctor' ? $record->doctor->specialization_id : null),
-      
+                    ->visible(fn(callable $get) => $get('role') === 'doctor')
+                    ->default(fn(?Model $record) => $record && $record->roles === 'doctor' ? $record->doctor->specialization_id : null),
+
                 Forms\Components\TextInput::make('address'),
                 Forms\Components\TextInput::make('phone')
                     ->tel(),
@@ -79,6 +87,8 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('gender')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('role')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('address')
@@ -94,9 +104,7 @@ class UserResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-            
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
