@@ -31,7 +31,7 @@ class Zender extends ChartWidget
         $data = $genderCounts->values()->toArray();
 
         // Assign different colors to each gender
-        $colors = ['#3498db', '#e74c3c', '#2ecc71', '#95a5a6']; // Blue, Red, Green, Gray
+        $colors = ['#3498db', '#e74c3c', '#2ecc71']; // Blue, Red, Green, Gray
 
         // Format labels to include percentages
         $formattedLabels = array_map(function ($label, $count) use ($total) {
