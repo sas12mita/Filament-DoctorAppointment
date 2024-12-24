@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PatientReportResource\Pages;
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\Patient;
 use App\Models\PatientReport;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
@@ -20,7 +21,9 @@ class PatientReportResource extends Resource
 {
     protected static ?string $model = PatientReport::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-arrow-up';
+    
+    protected static ?string $navigationGroup = 'Patient Management';
 
     public static function form(Form $form): Form
     {
@@ -48,6 +51,20 @@ class PatientReportResource extends Resource
 
                             if ($doctor) {
                                 return Appointment::where('doctor_id', $doctor->id)
+                                    ->where('status', 'completed')
+                                    ->get()
+                                    ->mapWithKeys(function ($appointment) {
+                                        return [
+                                            $appointment->id => "{$appointment->patient->user->name} has Appointment on {$appointment->schedule->date} at {$appointment->start_time}"
+                                        ];
+                                    });
+                            }
+                        }
+                        if ($user->role == "patient") {
+                            $patient = Patient::where('user_id', $user->id)->first();
+
+                            if ($patient) {
+                                return Appointment::where('patient_id', $patient->id)
                                     ->where('status', 'completed')
                                     ->get()
                                     ->mapWithKeys(function ($appointment) {
@@ -91,9 +108,11 @@ class PatientReportResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated At')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->dateTime()
                     ->sortable(),
             ])

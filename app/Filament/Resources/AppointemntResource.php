@@ -160,11 +160,13 @@ class AppointemntResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
+                    ->hidden()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->hidden()
                     ->toggleable(isToggledHiddenByDefault: true),
 
             ])
