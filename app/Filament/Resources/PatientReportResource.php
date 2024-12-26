@@ -23,7 +23,7 @@ class PatientReportResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-arrow-up';
     
-    protected static ?string $navigationGroup = 'Patient Management';
+    protected static ?string $navigationGroup = 'Appointment Management';
 
     public static function form(Form $form): Form
     {

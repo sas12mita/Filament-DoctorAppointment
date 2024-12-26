@@ -19,7 +19,7 @@ class Schedule extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
-    public function bookAppointments()
+    public function Appointments()
     {
         return $this->hasMany(Appointment::class);
     }

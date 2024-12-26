@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Auth;
 
 class StatsOverview extends BaseWidget
 {
+    protected static ?int $sort = 1;
+
     protected function getStats(): array
     {
         // Initialize the stats array

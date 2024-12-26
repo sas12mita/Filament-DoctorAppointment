@@ -65,7 +65,7 @@ class ScheduleResource extends Resource
                     ->options([
                         'available' => 'available',
                         'unavailable' => 'unavailable',
-                    ])
+                    ])->hidden()
                 
             ]);
     }
@@ -74,7 +74,8 @@ class ScheduleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('doctor_id')
+                Tables\Columns\TextColumn::make('doctor.user.name')
+                ->label('Doctor')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date')
@@ -83,8 +84,6 @@ class ScheduleResource extends Resource
                 Tables\Columns\TextColumn::make('start_time'),
                 Tables\Columns\TextColumn::make('end_time'),
                 Tables\Columns\TextColumn::make('day')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('availability')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

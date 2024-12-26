@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Services\AppointmentService;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Payment;
 use App\Models\Schedule;
 use App\Models\Specialization;
 use Filament\Forms;
@@ -22,6 +23,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 
 
 class AppointemntResource extends Resource
@@ -75,14 +77,14 @@ class AppointemntResource extends Resource
                     ->options(function () {
                         return Patient::with('user')
                             ->get()
-                            ->filter(fn($patient) => optional($patient->user)->name) 
+                            ->filter(fn($patient) => optional($patient->user)->name)
                             ->mapWithKeys(function ($patient) {
                                 return [
-                                    $patient->id => $patient->user->name, 
+                                    $patient->id => $patient->user->name,
                                 ];
                             });
                     })
-                    ->hidden(fn($get) => Auth::user()->role==='patient') // Hide for patient role
+                    ->hidden(fn($get) => Auth::user()->role === 'patient') // Hide for patient role
                     ->required(),
                 Forms\Components\Select::make('schedule_id')
                     ->label('Appointment Date')
@@ -91,10 +93,11 @@ class AppointemntResource extends Resource
                         if ($doctorId) {
                             return Schedule::where('doctor_id', $doctorId)
                                 ->where('availability', 'available') // Ensure only available schedules
+                                ->whereDate('date', '>', Carbon::today())
                                 ->get()
                                 ->mapWithKeys(function ($schedule) {
                                     return [
-                                        $schedule->id => $schedule->date, // Map ID to the date
+                                        $schedule->id => $schedule->date,
                                     ];
                                 });
                         }
@@ -108,17 +111,29 @@ class AppointemntResource extends Resource
                     ->label('Booking Time')
                     ->options(function ($get) {
                         $scheduleId = $get('schedule_id'); // Get the selected schedule ID
+                        $appointmentDate = $get('appointment_date'); // Ensure this field exists in your form
+
                         if ($scheduleId) {
                             $schedule = Schedule::find($scheduleId);
                             if ($schedule) {
                                 // Fetch booked slots for the selected schedule
                                 $bookedSlots = Appointment::where('schedule_id', $scheduleId)
+                                    ->whereTime('start_time', '>=', Carbon::now()->format('H:i'))
                                     ->pluck('start_time')
                                     ->toArray();
 
-                                // Generate all possible slots
                                 $appointmentService = new AppointmentService();
-                                $slots = $appointmentService->generateTimeSlots($schedule->start_time, $schedule->end_time);
+
+                                // Determine if the appointment date is today
+                                $isToday = Carbon::parse($appointmentDate)->isToday();
+
+                                // Generate slots with the $excludePastSlots flag
+                                $slots = $appointmentService->generateTimeSlots(
+                                    $schedule->start_time,
+                                    $schedule->end_time,
+                                    15,
+                                    $isToday
+                                );
 
                                 // Filter out booked slots
                                 $availableSlots = collect($slots)->filter(function ($slot) use ($bookedSlots) {
@@ -136,6 +151,8 @@ class AppointemntResource extends Resource
                     ->reactive()
                     ->placeholder('Select a time slot'),
 
+
+
                 Forms\Components\Hidden::make('status')
                     ->default('pending')
                     ->required(),
@@ -146,18 +163,50 @@ class AppointemntResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('patient_id')
+                Tables\Columns\TextColumn::make('patient.user.name')
+                    ->label('Patient')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('doctor_id')
+                Tables\Columns\TextColumn::make('doctor.user.name')
+                    ->label('Doctor')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('schedule_id')
-                    ->sortable(),
+
+
+                    
+              
+                // Tables\Columns\TextColumn::make('schedule_id')
+                //     ->label('Appointment Date')
+                //     ->relationship('schedule.date')
+                //     ->sortable(),
+                Tables\Columns\TextColumn::make('schedule.date')
+                ->label('Appointment Date')
+                
+                ->sortable()
+                ->formatStateUsing(fn ($record) => $record->schedule ? Carbon::parse($record->schedule->date)->format('Y-m-d') : 'N/A'),
+                  
                 Tables\Columns\TextColumn::make('start_time'),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->searchable(),
+                ->badge()
+                ->color(function ($record) {
+                    return match ($record->status) {
+                        'booked' => 'success',
+                        'pending' => 'danger',
+                        'completed' => 'success',
+                    };
+                })->searchable(),
+                Tables\Columns\TextColumn::make('payment.status')
+                ->badge()
+                ->label('Payment Status')
+                ->numeric()
+                ->color(function ($record) {
+                    return match ($record->payment->status) {
+                        'paid' => 'success',
+                        'unpaid' => 'danger',
+                    };
+                })->searchable()
+                ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->hidden()
@@ -174,45 +223,48 @@ class AppointemntResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make()
-                    ->hidden(fn($record) => $record->status === "booked" || $record->status === "completed"),
+                Tables\Actions\ActionGroup::make([
 
-                Tables\Actions\DeleteAction::make()
-                    ->hidden(fn($record) => $record->status === "booked"),
-                Tables\Actions\Action::make('book')
-                    ->label('Mark as Booked')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->action(function ($record) {
+                    Tables\Actions\ViewAction::make(),
 
+                    Tables\Actions\EditAction::make()
+                        ->hidden(fn($record) => in_array($record->status, ['completed'])),
 
-                        $record->status = 'booked';
-                        $record->save();
-                    })
-                    ->hidden(fn($record) => $record->status === "booked" || $record->status === "completed")
-                    ->visible(fn() => in_array(Auth::user()->role, ['admin', 'doctor'])),
+                    Tables\Actions\DeleteAction::make()
+                        ->hidden(fn($record) => $record->status === 'booked'),
 
+                    Tables\Actions\Action::make('book')
+                        ->label('Pay via stripe ')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            // $url = url('docbook/appointments/stripe-payment/{record}', ['id'=> $record->payment->id]);
+                            // return $url;
+                            $payment = Payment::where('appointment_id', $record->id)->first();
+                            return redirect(route('stripeform', ['payment' => $payment]));
+                        })
+                        ->hidden(fn($record) => in_array($record->status, ['booked', 'completed']))
+                        ->visible(fn() => in_array(Auth::user()->role, ['admin', 'doctor','patient'])),
 
-                Tables\Actions\Action::make('complete')
-                    ->label('Mark as Completed')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('primary')
-                    ->requiresConfirmation()
-                    ->action(function ($record) {
-                        $record->status = 'completed';
-                        $record->save();
-                    })
-                    ->hidden(fn($record) => $record->status == 'pending' || $record->status == 'completed')
-                    ->visible(fn() => in_array(Auth::user()->role, ['admin', 'doctor'])),
-
-
+                    Tables\Actions\Action::make('complete')
+                        ->label('Mark as Completed')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('primary')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            $record->status = 'completed';
+                            $record->save();
+                        })
+                        ->hidden(fn($record) => in_array($record->status, ['pending', 'completed']))
+                        ->visible(fn() => in_array(Auth::user()->role, ['admin', 'doctor'])),
+                ])
+                    ->label('Actions') // Label for the action group dropdown
+                    ->icon('heroicon-o-ellipsis-vertical'), // Icon for the action group dropdown
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
 
-                ]),
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 

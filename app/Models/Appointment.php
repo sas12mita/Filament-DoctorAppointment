@@ -11,6 +11,7 @@ class Appointment extends Model
         'patient_id',
         'schedule_id',
         'start_time',
+        'status'
     ];
         public function patient()
         {
@@ -29,5 +30,9 @@ class Appointment extends Model
         {
             return $this->belongsTo(Schedule::class, 'schedule_id');
         }
+        public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
     
 }
