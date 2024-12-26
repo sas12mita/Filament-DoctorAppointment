@@ -12,8 +12,7 @@ class PaymentPolicy
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
-    {
-        return false;
+    {        return $user->role=="admin"|| $user->role=="patient"||$user->role=="doctor";
     }
 
     /**
@@ -21,6 +20,18 @@ class PaymentPolicy
      */
     public function view(User $user, Payment $payment): bool
     {
+        if($user->role=="admin")
+        {
+           return true;
+        }
+        elseif($user->role=="doctor" && $payment->appointment->doctor->user->id === $user->id)
+        {
+           return true;
+        }
+        elseif($user->role=="patient" && $payment->appointment->patient->user->id === $user->id)
+        {
+           return true;
+        }
         return false;
     }
 

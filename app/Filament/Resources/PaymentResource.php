@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentResource extends Resource
 {
@@ -47,7 +48,11 @@ class PaymentResource extends Resource
                 // ->formatStateUsing(fn ($record) => $record->schedule ? Carbon::parse($record->appointment->schedule->date)->format('Y-m-d') : 'N/A'),
                  
                 Tables\Columns\TextColumn::make('amount')->sortable(),
-                Tables\Columns\TextColumn::make('appointment.patient.user.name')->sortable()->label('Patient'),
+                Tables\Columns\TextColumn::make('appointment.patient.user.name')->sortable()->label('Patient')
+                ->visible(fn() => in_array(Auth::user()->role, ['doctor','admin'])),
+                
+                Tables\Columns\TextColumn::make('appointment.doctor.user.name')->sortable()->label('Doctor')
+                ->visible(fn() => in_array(Auth::user()->role, ['patient','admin'])),
                 Tables\Columns\TextColumn::make('status')->sortable()
                 ->badge()
                 ->color(function ($record) {
