@@ -166,10 +166,12 @@ class AppointemntResource extends Resource
                 Tables\Columns\TextColumn::make('patient.user.name')
                     ->label('Patient')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('doctor.user.name')
                     ->label('Doctor')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
 
 
@@ -216,6 +218,7 @@ class AppointemntResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->hidden()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
             ])

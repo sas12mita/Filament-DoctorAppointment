@@ -22,18 +22,18 @@ class CreateAppointemnt extends CreateRecord
         $patient=Patient::where('user_id',$user_id)->first();
         $data['patient_id'] = $patient->id;
 
-        $appointment=Appointment::create(
-            [
-                'patient_id'=>$data['patient_id'],
-                'doctor_id' => $data['doctor_id'],
-                'schedule_id' => $data['schedule_id'],
-                'start_time' => $data['start_time'],
-                'status' => $data['status'] ?? 'pending',
-            ]
-            );
+        // $appointment=Appointment::create(
+        //     [
+        //         'patient_id'=>$data['patient_id'],
+        //         'doctor_id' => $data['doctor_id'],
+        //         'schedule_id' => $data['schedule_id'],
+        //         'start_time' => $data['start_time'],
+        //         'status' => $data['status'] ?? 'pending',
+        //     ]
+        //     );
         
 
-        }
+         }
         return $data;
     }
 

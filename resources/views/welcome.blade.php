@@ -38,9 +38,9 @@
             <!-- Navigation Links -->
             <div class="flex items-center space-x-4">
                 <a href="/admin/login" class="text-white font-semibold">Home</a>
-                <a href="/admin/login" class="text-white font-semibold">About</a>
-                <a href="/admin/login" class="text-white font-semibold">Contact</a>
-                <a href="/admin/login" class="text-white font-semibold">Service</a>
+                <a href="#service" class="text-white font-semibold">Service</a>
+                <a href="#about" class="text-white font-semibold">About</a>
+                <a href="#contact" class="text-white font-semibold">Contact</a>
                 <a href="/admin/login" class="text-white font-semibold">Log in</a>
                 <a href="admin/register" class="text-white font-semibold">Sign up</a>
             </div>
@@ -66,7 +66,7 @@
     </section>
 
     <!-- Services Section -->
-    <section class="py-12 bg-blue-50">
+    <section class="py-12 bg-blue-50" id="service">
         <div class="container mx-auto text-center">
             <h2 class="text-3xl font-bold text-blue-700 mb-6">Our Healthcare Services</h2>
             <p class="text-gray-600 mb-8">Explore a wide range of specialized healthcare services designed for you.</p>
@@ -97,7 +97,7 @@
     </section>
 
     <!-- About Us Section -->
-    <section class="py-12 bg-white">
+    <section class="py-12 bg-white" id="about">
         <div class="container mx-auto text-center">
             <h2 class="text-3xl font-bold text-blue-700 mb-6">About Us</h2>
             <p class="text-gray-600 mb-8">At HealthCare+, we are committed to providing exceptional healthcare services tailored to your needs. With a team of experienced professionals and state-of-the-art facilities, we strive to deliver excellence in every aspect of care.</p>
@@ -123,47 +123,65 @@
     </section>
 
     <!-- Contact Us Section -->
-    <section class="py-12 bg-blue-50">
-        <div class="container mx-auto text-center">
-            <h2 class="text-3xl font-bold text-blue-700 mb-6">Contact Us</h2>
-            <p class="text-gray-600 mb-8">We’d love to hear from you! Reach out to us for any inquiries, feedback, or support.</p>
+    <section class="py-16 bg-gradient-to-br from-blue-50 to-blue-100" id="contact">
+  
+    <div class="container mx-auto px-6 lg:px-20">
+        <h2 class="text-4xl font-extrabold text-blue-800 mb-8 text-center">Contact Us</h2>
+        <p class="text-lg text-gray-700 mb-12 text-center max-w-2xl mx-auto">
+            Have questions or need support? We're here to help. Drop us a message or reach out using the information below!
+        </p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h4 class="text-xl font-semibold text-blue-700 mb-4">Our Address</h4>
-                    <p class="text-gray-600">123 Healthcare Lane<br>Cityville, Healthstate 45678</p>
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
+            <!-- Contact Information -->
+            <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-lg">
+                <h4 class="text-2xl font-semibold text-blue-800 mb-6">Get in Touch</h4>
+                <p class="text-gray-700 mb-4">
+                    <strong>Address:</strong> <br>
+                    123 Healthcare Lane, Cityville, Healthstate 45678
+                </p>
+                <p class="text-gray-700 mb-4">
+                    <strong>Phone:</strong> <br>
+                    <a href="tel:+1234567890" class="text-blue-600 hover:text-blue-800 transition">+1 (234) 567-890</a>
+                </p>
+                <p class="text-gray-700">
+                    <strong>Email:</strong> <br>
+                    <a href="mailto:support@healthcareplus.com" class="text-blue-600 hover:text-blue-800 transition">support@healthcareplus.com</a>
+                </p>
 
-                    <h4 class="text-xl font-semibold text-blue-700 mt-6">Call Us</h4>
-                    <p class="text-gray-600"><a href="tel:+1234567890" class="text-blue-600 hover:underline">+1 (234) 567-890</a></p>
-
-                    <h4 class="text-xl font-semibold text-blue-700 mt-6">Email Us</h4>
-                    <p class="text-gray-600"><a href="mailto:support@healthcareplus.com" class="text-blue-600 hover:underline">support@healthcareplus.com</a></p>
-                </div>
-
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h4 class="text-xl font-semibold text-blue-700 mb-4">Send Us a Message</h4>
-                    <form action="#" method="POST">
-                        <div class="mb-4">
-                            <label for="name" class="block text-gray-600">Your Name</label>
-                            <input type="text" id="name" name="name" class="w-full border border-gray-300 p-2 rounded" placeholder="Enter your name" required>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="email" class="block text-gray-600">Your Email</label>
-                            <input type="email" id="email" name="email" class="w-full border border-gray-300 p-2 rounded" placeholder="Enter your email" required>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="message" class="block text-gray-600">Your Message</label>
-                            <textarea id="message" name="message" rows="4" class="w-full border border-gray-300 p-2 rounded" placeholder="Enter your message" required></textarea>
-                        </div>
-
-                        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Send Message</button>
-                    </form>
+                <div class="mt-8">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYCd2_e8oeH9n9oZamvoUjpzLHFSn0E6I36g&s" alt="Contact Us Illustration" class="rounded-lg shadow-lg">
                 </div>
             </div>
+
+            <!-- Contact Form -->
+            <div class="lg:col-span-3 bg-white p-8 rounded-xl shadow-lg">
+                <h4 class="text-2xl font-semibold text-blue-800 mb-6">Send Us a Message</h4>
+                <form action="#" method="POST">
+                    <div class="mb-6">
+                        <label for="name" class="block text-gray-700 font-medium">Your Name</label>
+                        <input type="text" id="name" name="name" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your name" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="email" class="block text-gray-700 font-medium">Your Email</label>
+                        <input type="email" id="email" name="email" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="message" class="block text-gray-700 font-medium">Your Message</label>
+                        <textarea id="message" name="message" rows="5" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your message" required></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-700 transition">
+                        Send Message
+                    </button>
+                </form>
+            </div>
         </div>
-    </section>
+    </div>
+
+</section>
+
 
     <!-- Footer -->
     <footer class="py-4">

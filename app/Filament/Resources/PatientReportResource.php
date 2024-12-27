@@ -100,21 +100,25 @@ class PatientReportResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('appointment_id')
                     ->label('Appointment ID')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('file')
                     ->label('Report File')
+                    ->icon('heroicon-o-document-text')
                     ->getStateUsing(fn ($record) => basename($record->file))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated At')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                   ->searchable(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

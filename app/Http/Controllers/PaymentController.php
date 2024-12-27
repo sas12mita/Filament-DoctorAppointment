@@ -38,7 +38,7 @@ class PaymentController extends Controller
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         Charge::create([
-            "amount" => 10000 * 100, // Amount in cents
+            "amount" => 1000 * 100, // Amount in cents
             "currency" => "usd",
             "source" => $request->stripeToken,
             "description" => "Payment for Appointment",
